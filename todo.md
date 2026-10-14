@@ -8,10 +8,11 @@ as they come up.
 
 ## 1. Going live (the user, with Claude's help)
 
-- [ ] **a.** The schema: push `telegram_links` and `telegram_members` to the live database from
+- [x] **a.** (done 2026-10-15) The schema: push `telegram_links` and `telegram_members` to the live database from
       Rewire (`../rinaya-rewire/todo.md`, its live-push rules: SQL shown first, explicit yes).
-- [ ] **b.** Telegram setup (`docs/setup.md` §1–2): the bot as group admin, the approval invite
-      link, the group id.
+- [x] **b.** (done 2026-10-15) Telegram setup (`docs/setup.md` §1–2): the bot as group admin, the
+      approval invite link ("Rewire members", made by the bot), the group id. The group has only
+      admins, so no member import; `TELEGRAM_GRACE_UNTIL` in the past removes walk-ins.
 - [ ] **c.** The VPS `.env` (`/var/www/rinaya-telegram/.env`, from `.env.prod`). The repo is on
       GitHub and cloned on the VPS (2026-10-14), so **the next push deploys and starts the bot**:
       without its `.env`, pm2 restarts it in a loop (`TELEGRAM_GROUP_ID is missing`).
