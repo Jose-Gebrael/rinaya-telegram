@@ -1,0 +1,382 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model admins {
+  id       Int    @id @default(autoincrement())
+  email    String @unique(map: "email") @db.VarChar(255)
+  password String @db.VarChar(255)
+}
+
+model breakup_quiz_emails {
+  id                                           Int       @id @default(autoincrement())
+  email                                        String    @unique(map: "email") @db.VarChar(255)
+  result                                       String    @db.VarChar(255)
+  how_long_since_breakup                       String    @db.VarChar(255)
+  hardest_part_right_now                       String    @db.VarChar(255)
+  check_their_social_media                     String    @db.VarChar(255)
+  what_comes_up_first_OR_what_would_you_change String    @db.VarChar(255)
+  How_they_cope                                String    @db.VarChar(255)
+  funnel                                       String    @db.VarChar(255)
+  stage                                        Int?      @default(1)
+  active                                       Boolean?  @default(true)
+  next_send_at                                 DateTime? @db.DateTime(0)
+  unsubscribed_at                              DateTime? @db.DateTime(0)
+  created_at                                   DateTime? @default(now()) @db.DateTime(0)
+  phone_number                                 String?   @db.VarChar(50)
+}
+
+model divorce_emails {
+  id              Int       @id @default(autoincrement())
+  name            String?   @db.VarChar(255)
+  email           String?   @unique(map: "email") @db.VarChar(255)
+  funnel          String?   @db.VarChar(255)
+  stage           Int?      @default(1)
+  active          Boolean?  @default(true)
+  next_send_at    DateTime? @db.DateTime(0)
+  unsubscribed_at DateTime? @db.DateTime(0)
+  created_at      DateTime? @default(now()) @db.DateTime(0)
+  language        String?   @db.VarChar(10)
+}
+
+model leads {
+  ID           Int      @id @default(autoincrement())
+  First_Name   String   @map("First Name") @db.VarChar(100)
+  Last_Name    String   @map("Last Name") @db.VarChar(100)
+  Email        String   @db.VarChar(100)
+  Phone_Number String   @map("Phone Number") @db.VarChar(100)
+  Reason       String   @db.VarChar(100)
+  Gender       String   @db.VarChar(100)
+  Age          Int
+  Date         DateTime @db.DateTime(0)
+}
+
+model nice_guy_emails {
+  id              Int       @id @default(autoincrement())
+  name            String    @db.VarChar(255)
+  email           String    @unique(map: "email") @db.VarChar(255)
+  score           Int?      @default(0)
+  funnel          String    @db.VarChar(255)
+  stage           Int?      @default(1)
+  active          Boolean?  @default(true)
+  next_send_at    DateTime? @db.DateTime(0)
+  unsubscribed_at DateTime? @db.DateTime(0)
+  created_at      DateTime? @default(now()) @db.DateTime(0)
+}
+
+model users {
+  id               Int                     @id @default(autoincrement())
+  email            String                  @unique(map: "email") @db.VarChar(255)
+  password         String?                 @db.VarChar(255)
+  created_at       DateTime                @default(now()) @db.DateTime(0)
+  purchases        purchases[]
+  setup_tokens     password_setup_tokens[]
+  payment_attempts payment_attempts[]
+}
+
+model purchases {
+  id            Int               @id @default(autoincrement())
+  user_id       Int
+  email         String            @db.VarChar(255)
+  purchase_type String            @db.VarChar(100)
+  booking_id    Int?              @unique(map: "purchases_booking_id_unique")
+  amount        Decimal?          @db.Decimal(10, 2)
+  currency      String?           @default("USD") @db.VarChar(10)
+  created_at    DateTime          @default(now()) @db.DateTime(0)
+  user          users             @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  booking       session_bookings? @relation(fields: [booking_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id, purchase_type], map: "purchases_user_purchase_type_idx")
+  @@index([user_id], map: "purchases_user_id_idx")
+  @@index([email], map: "purchases_email_idx")
+}
+
+model password_setup_tokens {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  email       String    @db.VarChar(255)
+  token_hash  String    @unique(map: "token_hash") @db.VarChar(255)
+  expires_at  DateTime  @db.DateTime(0)
+  consumed_at DateTime? @db.DateTime(0)
+  created_at  DateTime  @default(now()) @db.DateTime(0)
+  user        users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "setup_tokens_user_id_idx")
+  @@index([email], map: "setup_tokens_email_idx")
+}
+
+model payment_attempts {
+  id            BigInt            @id @default(autoincrement())
+  provider      String            @db.VarChar(50)
+  provider_ref  String?           @db.VarChar(255)
+  user_id       Int?
+  email         String            @db.VarChar(255)
+  purchase_type String?           @db.VarChar(100)
+  amount        Decimal           @db.Decimal(10, 2)
+  currency      String            @default("USD") @db.VarChar(10)
+  status        String            @default("pending") @db.VarChar(20)
+  collect_url   String?           @db.VarChar(500)
+  payer_phone   String?           @db.VarChar(50)
+  completed_at  DateTime?         @db.DateTime(0)
+  created_at    DateTime          @default(now()) @db.DateTime(0)
+  purpose       String            @default("course") @db.VarChar(20)
+  booking_id    Int?              @unique(map: "payment_booking_id_unique")
+  user          users?            @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  booking       session_bookings? @relation(fields: [booking_id], references: [id], onDelete: SetNull)
+
+  @@index([status, created_at], map: "payment_status_created_idx")
+  @@index([email], map: "payment_email_idx")
+  @@index([user_id], map: "payment_user_idx")
+  @@index([provider, provider_ref], map: "payment_provider_ref_idx")
+}
+
+model team_members {
+  id                             Int       @id @default(autoincrement())
+  email                          String    @unique(map: "team_email") @db.VarChar(255)
+  password                       String?   @db.VarChar(255)
+  name                           String    @db.VarChar(100)
+  slug                           String    @unique(map: "team_slug") @db.VarChar(50)
+  timezone                       String    @db.VarChar(50)
+  whatsapp_number                String?   @db.VarChar(30)
+  bio                            String?   @db.Text
+  avatar_url                     String?   @db.VarChar(500)
+  is_active                      Boolean   @default(true)
+  is_public                      Boolean   @default(false)
+  google_refresh_token             String?   @db.Text
+  google_access_token              String?   @db.Text
+  google_access_token_expires_at   DateTime? @db.DateTime(0)
+  google_refresh_token_issued_at   DateTime? @db.DateTime(0)
+  google_reminder_24h_sent_at      DateTime? @db.DateTime(0)
+  google_reminder_12h_sent_at      DateTime? @db.DateTime(0)
+  // Tracks whether is_public was flipped off automatically by the token
+  // expiry job (vs. manually by the coach). On reconnect, we auto-restore
+  // is_public only when this is set.
+  is_public_auto_disabled_at       DateTime? @db.DateTime(0)
+  google_calendar_id               String?   @default("primary") @db.VarChar(255)
+  created_at                     DateTime  @default(now()) @db.DateTime(0)
+
+  setup_tokens   team_setup_tokens[]
+  availability   team_availability[]
+  date_overrides team_date_overrides[]
+  bookings       session_bookings[]
+}
+
+model team_setup_tokens {
+  id             Int          @id @default(autoincrement())
+  team_member_id Int
+  email          String       @db.VarChar(255)
+  token_hash     String       @unique(map: "team_token_hash") @db.VarChar(255)
+  expires_at     DateTime     @db.DateTime(0)
+  consumed_at    DateTime?    @db.DateTime(0)
+  created_at     DateTime     @default(now()) @db.DateTime(0)
+  team_member    team_members @relation(fields: [team_member_id], references: [id], onDelete: Cascade)
+
+  @@index([team_member_id], map: "team_setup_tokens_member_idx")
+  @@index([email], map: "team_setup_tokens_email_idx")
+}
+
+model team_availability {
+  id                Int          @id @default(autoincrement())
+  team_member_id    Int
+  team_member_email String?      @db.VarChar(255)
+  weekday           Int
+  hour              Int
+  team_member       team_members @relation(fields: [team_member_id], references: [id], onDelete: Cascade)
+
+  @@unique([team_member_id, weekday, hour], map: "team_availability_unique")
+  @@index([team_member_id], map: "team_availability_member_idx")
+  @@index([team_member_email], map: "team_availability_email_idx")
+}
+
+model team_date_overrides {
+  id                Int          @id @default(autoincrement())
+  team_member_id    Int
+  team_member_email String?      @db.VarChar(255)
+  date              DateTime     @db.Date
+  hour              Int
+  type              String       @db.VarChar(10)
+  team_member       team_members @relation(fields: [team_member_id], references: [id], onDelete: Cascade)
+
+  @@unique([team_member_id, date, hour], map: "team_date_overrides_unique")
+  @@index([team_member_id, date], map: "team_date_overrides_member_date_idx")
+  @@index([team_member_email], map: "team_date_overrides_email_idx")
+}
+
+model session_bookings {
+  id                Int       @id @default(autoincrement())
+  team_member_id    Int
+  team_member_email String?   @db.VarChar(255)
+  client_name       String    @db.VarChar(255)
+  client_email      String    @db.VarChar(255)
+  contact_method    String    @db.VarChar(20)
+  client_phone      String?   @db.VarChar(30)
+  starts_at_utc     DateTime  @db.DateTime(0)
+  duration_min      Int       @default(45)
+  status            String    @default("pending_payment") @db.VarChar(20)
+  google_event_id   String?   @db.VarChar(255)
+  google_meet_url   String?   @db.VarChar(500)
+  cancelled_at      DateTime? @db.DateTime(0)
+  cancelled_reason  String?   @db.VarChar(255)
+  created_at        DateTime  @default(now()) @db.DateTime(0)
+
+  team_member     team_members      @relation(fields: [team_member_id], references: [id], onDelete: Restrict)
+  payment_attempt payment_attempts?
+  purchase        purchases?
+
+  @@index([team_member_id, starts_at_utc], map: "session_bookings_member_starts_idx")
+  @@index([starts_at_utc], map: "session_bookings_starts_idx")
+  @@index([status], map: "session_bookings_status_idx")
+  @@index([team_member_email], map: "session_bookings_member_email_idx")
+}
+
+// ---------- Rewire (rewire.rinaya.org) ----------
+// Added by the Rewire repo. Must also be copied into the Rinaya repo's schema
+// before a db push from there (both repos' CLAUDE.md). No relation fields,
+// so the Rinaya models above stay byte-for-byte unchanged.
+
+// One row per account: the engine's per-user state (formerly a session in
+// data/sessions.json) and the app's per-account values (formerly localStorage).
+model rewire_accounts {
+  user_id    Int      @id
+  sid        String   @unique(map: "rewire_accounts_sid") @db.Char(32)
+  engine     String   @db.LongText
+  client     String?  @db.Text
+  created_at DateTime @default(now()) @db.DateTime(0)
+  updated_at DateTime @default(now()) @updatedAt @db.DateTime(0)
+}
+
+// Engine-wide documents (formerly data/usage.json and data/trials.json).
+model rewire_store {
+  name       String   @id @db.VarChar(64)
+  data       String   @db.LongText
+  updated_at DateTime @default(now()) @updatedAt @db.DateTime(0)
+}
+
+// Her Rewire plan: one row per account, kept current by rinaya.org's checkout
+// and billing (CyberSource), read by Rewire to decide access. See "The
+// rinaya.org ↔ Rewire contract" in the Rewire repo's CLAUDE.md for who
+// writes what.
+//   plan:   trial | core | private | sprint
+//   status: active | cancelled (paid through current_period_end) | suspended
+//           (renewal failed; blocked until the card is updated) | ended
+//   promo_code: the promo code she typed at her last checkout (rinaya.org's
+//           src/lib/rewire/promos.ts); its discount applies to every charge
+//           until she buys again without it. Prices shown in Rewire stay full.
+model rewire_subscriptions {
+  user_id            Int       @id
+  plan               String    @db.VarChar(20)
+  status             String    @db.VarChar(20)
+  current_period_end DateTime  @db.DateTime(0)
+  pending_plan       String?   @db.VarChar(20)
+  cs_customer_token  String?   @db.VarChar(64)
+  cs_subscription_id String?   @db.VarChar(64)
+  promo_code         String?   @db.VarChar(32)
+  started_at         DateTime  @default(now()) @db.DateTime(0)
+  cancelled_at       DateTime? @db.DateTime(0)
+  updated_at         DateTime  @default(now()) @updatedAt @db.DateTime(0)
+
+  @@index([cs_subscription_id], map: "rewire_subscriptions_cs_sub_idx")
+  @@index([status, current_period_end], map: "rewire_subscriptions_status_end_idx")
+}
+
+// Access an admin gave her (admin.rinaya.org → Rewire → Members): a plan, as
+// if she had bought it, until ends_at. Written and read by Rewire only. Not
+// billing: nothing charges for it and rinaya.org's billing sync never reads
+// it. While one is live (revoked_at null, ends_at ahead) it decides her
+// access over rewire_subscriptions. Ending one early sets revoked_at, and
+// changing one ends it and writes a new row, so every grant stays on record.
+//   plan: core | private | sprint
+model rewire_grants {
+  id         Int       @id @default(autoincrement())
+  user_id    Int
+  plan       String    @db.VarChar(20)
+  ends_at    DateTime  @db.DateTime(0)
+  note       String?   @db.VarChar(255)
+  granted_by String    @db.VarChar(255)
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  revoked_at DateTime? @db.DateTime(0)
+  revoked_by String?   @db.VarChar(255)
+
+  @@index([user_id, ends_at], map: "rewire_grants_user_end_idx")
+}
+
+// 1:1 session credits with Joey, as a ledger: her balance is the sum of delta.
+//   +1 per Private renewal, +4 for a Sprint, -1 per booking, +1 on a refunded
+//   booking, or a manual adjustment. `ref` points at what caused it (a
+//   payment_attempts id, a subscription charge, a session_bookings id).
+model rewire_credits {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  delta      Int
+  reason     String   @db.VarChar(20)
+  ref        String?  @db.VarChar(100)
+  note       String?  @db.VarChar(255)
+  created_at DateTime @default(now()) @db.DateTime(0)
+
+  @@index([user_id], map: "rewire_credits_user_idx")
+}
+
+// What happens in the training, one row per event (formerly the files in
+// data/archive/). Written only, by logEvent() in src/lib/engine/store.ts.
+//   kind:    assessments | consent | runs | reps | questions | guardrails |
+//            bfquiz | briefs | turns
+//   data:    the event as JSON, with its own `ts`
+//   user_id: the account (no relation field, like the other Rewire tables)
+// Read them with scripts/events.mjs.
+model rewire_events {
+  id         BigInt   @id @default(autoincrement())
+  kind       String   @db.VarChar(32)
+  user_id    Int?
+  sid        String?  @db.Char(32)
+  data       String   @db.LongText
+  created_at DateTime @default(now()) @db.DateTime(3)
+
+  @@index([kind, created_at], map: "rewire_events_kind_created_idx")
+  @@index([user_id, created_at], map: "rewire_events_user_created_idx")
+}
+
+// ---------- The Rinaya community on Telegram (../rinaya-telegram) ----------
+// A private Telegram group only members with open Rewire access are in. The
+// bot lets people in (join requests) and removes them when their access
+// closes; see "Telegram" in the Rewire repo's CLAUDE.md for who writes what.
+
+// Her Telegram connection: one row per account that has started connecting.
+// Rewire (onboarding, Settings) and rinaya.org (/rewire/account) write the
+// one-time link token and the skip; the bot writes everything else.
+//   status: none (not connected yet) | linked (connected, not in the group) |
+//           member (in the group) | left (left the group herself) |
+//           suspended (removed by the bot because her access closed)
+//   link_token: the one-time `t.me/<bot>?start=<token>` code, cleared when used
+model telegram_links {
+  user_id               Int       @id
+  status                String    @default("none") @db.VarChar(20)
+  telegram_id           BigInt?   @unique(map: "telegram_links_telegram_id_unique")
+  telegram_username     String?   @db.VarChar(64)
+  link_token            String?   @unique(map: "telegram_links_link_token_unique") @db.VarChar(64)
+  link_token_expires_at DateTime? @db.DateTime(0)
+  skipped_at            DateTime? @db.DateTime(0)
+  linked_at             DateTime? @db.DateTime(0)
+  joined_at             DateTime? @db.DateTime(0)
+  kicked_at             DateTime? @db.DateTime(0)
+  created_at            DateTime  @default(now()) @db.DateTime(0)
+  updated_at            DateTime  @default(now()) @updatedAt @db.DateTime(0)
+}
+
+// Everyone the bot has seen in the group, connected or not (joins, leaves,
+// messages, and the one-off member list import). Written by the bot only; it
+// is how the bot finds members who never connected, to remove them after the
+// grace period.
+model telegram_members {
+  telegram_id   BigInt   @id
+  username      String?  @db.VarChar(64)
+  first_name    String?  @db.VarChar(128)
+  in_group      Boolean  @default(true)
+  is_admin      Boolean  @default(false)
+  first_seen_at DateTime @default(now()) @db.DateTime(0)
+  last_seen_at  DateTime @default(now()) @db.DateTime(0)
+}

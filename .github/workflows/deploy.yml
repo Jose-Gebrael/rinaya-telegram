@@ -1,0 +1,31 @@
+name: Deploy to VPS
+
+# Every push to main deploys the bot, the same way rinaya.org and Rewire deploy.
+# On the VPS: the repo is cloned in /var/www/rinaya-telegram with its .env, and
+# pm2 runs it as "rinaya-telegram". It uses long polling: no port, no nginx.
+# Schema changes are never pushed from here (CLAUDE.md).
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /var/www/rinaya-telegram
+            git pull origin main
+            npm ci
+            npx prisma generate
+            npm run typecheck
+            pm2 restart rinaya-telegram || pm2 start "npm start" --name rinaya-telegram
+            pm2 save
