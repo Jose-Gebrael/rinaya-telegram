@@ -29,9 +29,11 @@ Privacy mode can stay on: as a group admin the bot sees every message anyway.
 3. **The approval link.** Group info → Edit → *Invite links* → *Create a new link*: turn on
    **Request admin approval**, name it e.g. "Rewire members", no limit, no expiry. That link is
    `TELEGRAM_INVITE_URL`, in all three `.env` files.
-4. **Close the other doors.** In the same *Invite links* screen, revoke every other link,
-   including the primary one (⋮ → *Revoke*; Telegram replaces it with a new primary link: don't
-   share that one). Anyone who still gets in another way is removed after the grace period.
+4. **Close the other doors.** In the same *Invite links* screen, revoke every extra link. The
+   *primary* link can't be removed: revoking it only makes a new one. Never share it, and keep
+   `TELEGRAM_GRACE_UNTIL` set to a moment in the past once the group has no unconnected members
+   left: then anyone who walks in through the primary link without connecting is removed at the
+   next sweep (within `TELEGRAM_SWEEP_MINUTES`).
 5. **The group id** (`TELEGRAM_GROUP_ID`): send any message in the group after step 2, then read
    it from the bot's updates, while the bot isn't running anywhere:
    ```bash
