@@ -44,7 +44,7 @@ be deployed first.
 
 1. Get `TELEGRAM_API_ID` and `TELEGRAM_API_HASH` at https://my.telegram.org → API development tools.
 2. `npm run import-members` (shows the count), then `npm run import-members -- --write`.
-3. Pick the end of the grace period (7 days, user decision 2026-10-14), set `TELEGRAM_GRACE_UNTIL`,
+3. Pick the end of the grace period (2 days, user decision 2026-10-14), set `TELEGRAM_GRACE_UNTIL`,
    restart the bot.
 4. In the group, an admin sends `/announce`: the bot posts how to connect and the date.
 

@@ -19,7 +19,7 @@ as they come up.
       then let an admin grant on it end and watch the sweep remove her; give a new grant and
       watch the welcome-back message.
 - [ ] **f.** Members already in the group (`docs/setup.md` §4): import, set
-      `TELEGRAM_GRACE_UNTIL` 7 days out, `/announce`.
+      `TELEGRAM_GRACE_UNTIL` 2 days out, `/announce`.
 
 ## 2. Wording to confirm (customer-facing)
 
