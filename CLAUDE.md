@@ -48,11 +48,14 @@ already there once, over MTProto (`scripts/importMembers.ts`).
 
 The production MariaDB is shared by rinaya.org, Rewire, the admin app and this bot.
 
-- **This repo never changes the schema.** `prisma/schema.prisma` is a copy of Rewire's (byte for
-  byte: `cmp prisma/schema.prisma ../rinaya-rewire/prisma/schema.prisma`), used only to generate
-  the client. Never run `prisma db push` or `prisma migrate` from here. Schema changes are made in
-  Rewire and rinaya.org (both schema files identical, additive only) and pushed from there by their
-  rules; then copy the file here.
+- **Three repos hold the same `prisma/schema.prisma`, byte for byte: this one, Rewire
+  (`../rinaya-rewire`) and rinaya.org (`../rinaya`).** Any change to it is made in all three in
+  the same session, before anyone pushes, and each repo commits its copy. Check:
+  `cmp ../rinaya/prisma/schema.prisma ../rinaya-rewire/prisma/schema.prisma && cmp ../rinaya/prisma/schema.prisma ../rinaya-telegram/prisma/schema.prisma`
+  (no output = identical).
+- **This repo never pushes the schema.** It only generates its client from the file. Never run
+  `prisma db push` or `prisma migrate` from here: schema changes (additive only) are pushed from
+  Rewire or rinaya.org, by their rules.
 - The bot writes only `telegram_links` (everything but `link_token`, `link_token_expires_at` and
   `skipped_at`, which the apps write) and `telegram_members`. It only reads `rewire_subscriptions`
   and `rewire_grants`.

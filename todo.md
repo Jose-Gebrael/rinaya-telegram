@@ -12,7 +12,9 @@ as they come up.
       Rewire (`../rinaya-rewire/todo.md`, its live-push rules: SQL shown first, explicit yes).
 - [ ] **b.** Telegram setup (`docs/setup.md` §1–2): the bot as group admin, the approval invite
       link, the group id.
-- [ ] **c.** The GitHub repo (private) and the VPS (`docs/setup.md` §5), `.env` from `.env.prod`.
+- [ ] **c.** The VPS `.env` (`/var/www/rinaya-telegram/.env`, from `.env.prod`). The repo is on
+      GitHub and cloned on the VPS (2026-10-14), so **the next push deploys and starts the bot**:
+      without its `.env`, pm2 restarts it in a loop (`TELEGRAM_GROUP_ID is missing`).
 - [ ] **d.** Rewire and rinaya.org: `TELEGRAM_BOT_USERNAME=rinaya_bot` and `TELEGRAM_INVITE_URL`
       in both `.env` files on the VPS, then deploy them (their commits are on `main`, not pushed).
 - [ ] **e.** Try it end to end on live with a test account: connect from Rewire, join the group,
