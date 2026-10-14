@@ -15,16 +15,29 @@ Privacy mode can stay on: as a group admin the bot sees every message anyway.
 
 ## 2. The group
 
-1. Use the existing community group (it must be a **supergroup**: any group with a public link, or
-   over 200 members, already is; otherwise Telegram converts it when you turn on the setting in
-   step 3).
-2. **Add @rinaya_bot as an admin** with these rights: *Ban users* and *Invite users via link*.
-   Nothing else is needed.
-3. **Group settings → Invite links → Create a new link**, with **"Request admin approval"** on.
-   That link is `TELEGRAM_INVITE_URL`, in all three `.env` files. Revoke any other invite links,
-   or people can still walk in through them (the grace period would then remove them).
-4. **The group id** (`TELEGRAM_GROUP_ID`): add @RawDataBot to the group for a moment, read
-   `chat.id` from its message (it starts with `-100`), then remove it.
+1. **Private, not public.** Group info → Edit → *Group type*: **Private**. A public group (one with
+   an @username) lets anyone in without a link, so the bot couldn't gatekeep it. If it must stay
+   public, turn on *Approve new members* there instead.
+2. **Add @rinaya_bot as an admin.** Group info → Edit → *Administrators* → *Add Admin* → search
+   `rinaya_bot` (if it isn't offered, add it as a member first, then promote it). Rights:
+   - **Ban users**: on (how it removes people).
+   - **Invite users via link**: on (approving join requests needs it).
+   - **Delete messages**: on, optional (it deletes the `/announce` command after posting).
+   - Everything else off; *Remain anonymous* off.
+   A small group may become a supergroup at this point: its id changes, so take the id after this
+   step.
+3. **The approval link.** Group info → Edit → *Invite links* → *Create a new link*: turn on
+   **Request admin approval**, name it e.g. "Rewire members", no limit, no expiry. That link is
+   `TELEGRAM_INVITE_URL`, in all three `.env` files.
+4. **Close the other doors.** In the same *Invite links* screen, revoke every other link,
+   including the primary one (⋮ → *Revoke*; Telegram replaces it with a new primary link: don't
+   share that one). Anyone who still gets in another way is removed after the grace period.
+5. **The group id** (`TELEGRAM_GROUP_ID`): send any message in the group after step 2, then read
+   it from the bot's updates, while the bot isn't running anywhere:
+   ```bash
+   node -e 'require("dotenv").config({quiet:true});fetch("https://api.telegram.org/bot"+process.env.TELEGRAM_BOT_TOKEN+"/getUpdates").then(r=>r.json()).then(j=>console.log([...new Set((j.result||[]).map(u=>(u.message||u.my_chat_member||u.chat_member||{}).chat).filter(c=>c&&c.type!=="private").map(c=>c.id+" "+c.title))]))'
+   ```
+   It starts with `-100`. (Or add @RawDataBot to the group for a moment and read `chat.id`.)
 
 ## 3. The values
 
