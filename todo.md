@@ -30,4 +30,6 @@ as they come up.
 
 ## 3. Later
 
-- [ ] **a.** The admin app: each member's Telegram status (`../rinaya-admin/rinaya-rewire-todo.md`).
+- [ ] **a.** Idea, not asked for: each member's Telegram status in the admin app (Members). Needs
+      Rewire's `/api/admin/members` to carry it first, then an item in
+      `../rinaya-admin/rinaya-rewire-todo.md`.
