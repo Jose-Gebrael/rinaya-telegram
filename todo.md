@@ -13,9 +13,8 @@ as they come up.
 - [x] **b.** (done 2026-10-15) Telegram setup (`docs/setup.md` §1–2): the bot as group admin, the
       approval invite link ("Rewire members", made by the bot), the group id. The group has only
       admins, so no member import; `TELEGRAM_GRACE_UNTIL` in the past removes walk-ins.
-- [ ] **c.** The VPS `.env` (`/var/www/rinaya-telegram/.env`, from `.env.prod`). The repo is on
-      GitHub and cloned on the VPS (2026-10-14), so **the next push deploys and starts the bot**:
-      without its `.env`, pm2 restarts it in a loop (`TELEGRAM_GROUP_ID is missing`).
+- [x] **c.** (done 2026-10-15) The VPS `.env` (`/var/www/rinaya-telegram/.env`, from
+      `.env.prod`) is filled and the bot is live on the VPS.
 - [ ] **d.** Rewire and rinaya.org: `TELEGRAM_BOT_USERNAME=rinaya_bot` and `TELEGRAM_INVITE_URL`
       in both `.env` files on the VPS, then deploy them (their commits are on `main`, not pushed).
 - [ ] **e.** Try it end to end on live with a test account: connect from Rewire, join the group,
