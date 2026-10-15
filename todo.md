@@ -15,8 +15,8 @@ as they come up.
       admins, so no member import; `TELEGRAM_GRACE_UNTIL` in the past removes walk-ins.
 - [x] **c.** (done 2026-10-15) The VPS `.env` (`/var/www/rinaya-telegram/.env`, from
       `.env.prod`) is filled and the bot is live on the VPS.
-- [ ] **d.** Rewire and rinaya.org: `TELEGRAM_BOT_USERNAME=rinaya_bot` and `TELEGRAM_INVITE_URL`
-      in both `.env` files on the VPS, then deploy them (their commits are on `main`, not pushed).
+- [x] **d.** (done 2026-10-15) Rewire and rinaya.org: `TELEGRAM_BOT_USERNAME=rinaya_bot` and
+      `TELEGRAM_INVITE_URL` in both `.env` files on the VPS; their Telegram commits are pushed.
 - [ ] **e.** Try it end to end on live with a test account: connect from Rewire, join the group,
       then let an admin grant on it end and watch the sweep remove her; give a new grant and
       watch the welcome-back message.
