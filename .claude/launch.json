@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "rewire-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "../rinaya-rewire", "run", "dev"],
+      "port": 3002
+    }
+  ]
+}
