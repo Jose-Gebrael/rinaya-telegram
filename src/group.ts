@@ -1,5 +1,5 @@
 // The community group: who is in it, and removing people from it.
-import type { Api, RawApi } from "grammy";
+import { GrammyError, type Api, type RawApi } from "grammy";
 import type { ChatMember, User } from "grammy/types";
 import { config } from "./config";
 import { log } from "./log";
@@ -16,12 +16,15 @@ export function isAdminStatus(m: ChatMember): boolean {
   return m.status === "administrator" || m.status === "creator";
 }
 
-// Her membership as Telegram sees it right now, or null if Telegram doesn't know her.
+// Her membership as Telegram sees it right now, or null if Telegram doesn't know her
+// (a 400). Anything else (rate limit, network) throws: the caller tries again later
+// rather than taking her for gone.
 export async function memberNow(api: BotApi, telegramId: number | bigint): Promise<ChatMember | null> {
   try {
     return await api.getChatMember(config.groupId, Number(telegramId));
-  } catch {
-    return null;
+  } catch (e) {
+    if (e instanceof GrammyError && e.error_code === 400) return null;
+    throw e;
   }
 }
 

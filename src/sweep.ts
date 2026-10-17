@@ -60,7 +60,13 @@ export async function sweep(api: Api<RawApi>, now = new Date()) {
         graceOver,
       });
       if (!action) continue;
-      await act(api, BigInt(id), action, link?.user_id ?? null);
+      // One failure (Telegram busy, a network blip) doesn't stop the others;
+      // nothing was recorded for her, so the next sweep tries again.
+      try {
+        await act(api, BigInt(id), action, link?.user_id ?? null);
+      } catch (e) {
+        log("sweep_member_failed", { telegramId: id, action, error: (e as Error).message });
+      }
     }
   } catch (e) {
     log("sweep_failed", { error: (e as Error).message });
