@@ -69,6 +69,41 @@ model nice_guy_emails {
   created_at      DateTime? @default(now()) @db.DateTime(0)
 }
 
+// The "Is he emotionally unavailable?" test taken in a Meta lead form, one row
+// per lead (src/app/api/meta-leadgen/handlers/heTest.ts in rinaya.org). Shown
+// in the admin app under Rinaya → Unavailable Men.
+//   q1_..q10_: the answer she picked, as worded in src/lib/he-test/resultEmailCopy.ts
+//              (null when her answer didn't match any)
+//   unmatched: the form's answers that matched no question, as JSON (wording drift)
+//   email_status: sent | failed
+model he_test_leads {
+  id                 Int       @id @default(autoincrement())
+  lead_id            String    @unique(map: "he_test_leads_lead_id_unique") @db.VarChar(64)
+  form_id            String    @db.VarChar(64)
+  funnel             String    @db.VarChar(255)
+  email              String    @db.VarChar(255)
+  first_name         String?   @db.VarChar(255)
+  q1_how_long        String?   @db.VarChar(255)
+  q2_where_going     String?   @db.VarChar(255)
+  q3_after_good_day  String?   @db.VarChar(255)
+  q4_who_texts_first String?   @db.VarChar(255)
+  q5_future          String?   @db.VarChar(255)
+  q6_when_bothered   String?   @db.VarChar(255)
+  q7_his_people      String?   @db.VarChar(255)
+  q8_plans           String?   @db.VarChar(255)
+  q9_how_you_feel    String?   @db.VarChar(255)
+  q10_what_you_want  String?   @db.VarChar(255)
+  unmatched          String?   @db.Text
+  answered           Int
+  score              Int
+  band               String    @db.VarChar(8)
+  email_status       String    @db.VarChar(16)
+  sent_at            DateTime? @db.DateTime(0)
+  created_at         DateTime  @default(now()) @db.DateTime(0)
+
+  @@index([created_at], map: "he_test_leads_created_idx")
+}
+
 model users {
   id               Int                     @id @default(autoincrement())
   email            String                  @unique(map: "email") @db.VarChar(255)
