@@ -15,6 +15,10 @@ function graceUntil(): Date | null {
   return d;
 }
 
+function current(url: string | undefined): string | undefined {
+  return url && !/rewire\.rinaya\.org|rinaya\.org\/rewire/.test(url) ? url.replace(/\/$/, "") : undefined;
+}
+
 export const config = {
   botToken: required("TELEGRAM_BOT_TOKEN"),
   // The community supergroup's id (-100…).
@@ -26,6 +30,9 @@ export const config = {
   // date. Empty: nobody is removed for not connecting.
   graceUntil: graceUntil(),
   sweepMinutes: Number(process.env.TELEGRAM_SWEEP_MINUTES || 10),
-  rewireUrl: process.env.REWIRE_APP_URL || "https://rewire.rinaya.org",
-  billingUrl: process.env.BILLING_URL || "https://rinaya.org/rewire/account",
+  // Modern Dating (moderndating.me): her Settings → Telegram is /telegram, her
+  // billing /billing. Addresses from before its move (rewire.rinaya.org,
+  // rinaya.org/rewire/*) are ignored, so an older .env needs no change.
+  rewireUrl: current(process.env.REWIRE_APP_URL) || "https://moderndating.me",
+  billingUrl: current(process.env.BILLING_URL) || "https://moderndating.me/billing",
 };

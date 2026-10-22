@@ -1,18 +1,16 @@
 # Rinaya Telegram (@rinaya_bot)
 
-The gatekeeper of the Rinaya community group on Telegram: only members with open Rewire access are
-in it. The bot lets people in (join requests), removes them when their access closes, and tells
+The gatekeeper of the Rinaya community group on Telegram: only Modern Dating members with open
+access are in it (Modern Dating, moderndating.me, is the app whose repo is `../rinaya-rewire`; its
+members see Modern Dating, never "Rewire", and so do the bot's messages). The bot lets people in (join requests), removes them when their access closes, and tells
 them when they can come back. No roles, nothing else.
 
 **Start here:** `todo.md` is everything still pending, as a checklist: tick items as they land and
 add new ones as they come up. How to set the bot and the group up on Telegram: `docs/setup.md`.
 
-**Sister apps** (all share one database):
-
-- **Rewire** (rewire.rinaya.org, `../rinaya-rewire`): the "Join our community" onboarding step and
-  Settings → Telegram, where she connects. Its CLAUDE.md has the contract ("Telegram community").
-- **rinaya.org** (`../rinaya`): bills Rewire, and shows the Telegram card on `/rewire/account`.
-- Work either of them needs goes in their `todo.md`, the same way they list work for each other.
+**Sister app:** **Modern Dating** (moderndating.me, `../rinaya-rewire`): the "Join our community"
+onboarding step and Settings → Telegram, where she connects, and the billing that decides her
+access. Its CLAUDE.md has the contract ("Telegram"). Work it needs goes in its `todo.md`.
 
 **Guidelines** (`docs/guidelines/`): [naming-conventions.md](docs/guidelines/naming-conventions.md)
 for every new file, folder, branch, commit and env var; [maintenance.md](docs/guidelines/maintenance.md)
@@ -20,10 +18,10 @@ for the recurring checks.
 
 ## How it works
 
-1. Rewire or rinaya.org writes a one-time code on her `telegram_links` row (30 minutes) and opens
+1. Modern Dating writes a one-time code on her `telegram_links` row (30 minutes) and opens
    `t.me/rinaya_bot?start=<code>`.
 2. `/start <code>` (`src/linking.ts`): the bot saves her Telegram id on that row, clears the code,
-   and answers with the group's link. One Telegram account per Rewire account: connecting it to
+   and answers with the group's link. One Telegram account per Modern Dating account: connecting it to
    another account moves it there; connecting a new one removes the old one from the group.
 3. The group's invite link has "approve new members" on, so anyone can open it and the bot answers
    each join request (`src/bot.ts`): approved when connected with open access, otherwise declined
@@ -36,30 +34,32 @@ for the recurring checks.
    - Group admins (refreshed every sweep) and bots are never removed.
 5. Membership updates (`chat_member`) keep `telegram_members` and her `status` current.
 
-Access is Rewire's rule: `src/access.ts` is a copy of `../rinaya-rewire/src/lib/billing/plan.ts`'s
+Access is Modern Dating's rule: `src/access.ts` is a copy of `../rinaya-rewire/src/lib/billing/plan.ts`'s
 `accessOf`, `latestGrant`, `isLive` and `planRow`. Change them there first, then copy them here
-unchanged (rinaya.org does the same).
+unchanged.
 
 `telegram_members` is how the bot knows who is in the group: the Bot API can't list members, so it
 records everyone it sees (joins, messages, admins), and `npm run import-members` records the ones
 already there once, over MTProto (`scripts/importMembers.ts`).
 
-## The database is live and shared
+## The database is Modern Dating's, and live
 
-The production MariaDB is shared by rinaya.org, Rewire, the admin app and this bot.
+Since 2026-10-22 the bot reads Modern Dating's database, `rinaya_rewire_db` (before, the one it
+shared with rinaya.org). It takes the `DATABASE_URL` from Modern Dating's `.env`, next to this repo
+(`/var/www/rinaya-rewire/.env` on the VPS, `../rinaya-rewire/.env` here; `REWIRE_ENV_FILE` names
+another; this repo's own `DATABASE_URL` only without one), so the two never point at different
+databases (`src/prisma.ts`).
 
-- **Three repos hold the same `prisma/schema.prisma`, byte for byte: this one, Rewire
-  (`../rinaya-rewire`) and rinaya.org (`../rinaya`).** Any change to it is made in all three in
-  the same session, before anyone pushes, and each repo commits its copy. Check:
-  `cmp ../rinaya/prisma/schema.prisma ../rinaya-rewire/prisma/schema.prisma && cmp ../rinaya/prisma/schema.prisma ../rinaya-telegram/prisma/schema.prisma`
-  (no output = identical).
+- **`prisma/schema.prisma` holds only the models the bot uses** (`rewire_subscriptions`,
+  `rewire_grants`, `telegram_links`, `telegram_members`), copied unchanged from
+  `../rinaya-rewire/prisma/schema.prisma`, which a change to one of them is made in first.
 - **This repo never pushes the schema.** It only generates its client from the file. Never run
-  `prisma db push` or `prisma migrate` from here: schema changes (additive only) are pushed from
-  Rewire or rinaya.org, by their rules.
+  `prisma db push` or `prisma migrate` from here: with four models, a push would drop every other
+  table.
 - The bot writes only `telegram_links` (everything but `link_token`, `link_token_expires_at` and
-  `skipped_at`, which the apps write) and `telegram_members`. It only reads `rewire_subscriptions`
+  `skipped_at`, which the app writes) and `telegram_members`. It only reads `rewire_subscriptions`
   and `rewire_grants`.
-- Development runs against the local `rinaya-db` container (`127.0.0.1:3307`, `rinaya_local`).
+- Development runs against the local `rinaya-db` container (`127.0.0.1:3307`, `rinaya_rewire_db`).
 - **Never print, log or echo `DATABASE_URL`, `TELEGRAM_BOT_TOKEN` or any other `.env` value.**
 - **Never read, open, edit or reference `.env.prod`.**
 
