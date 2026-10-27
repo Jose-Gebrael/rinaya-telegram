@@ -28,3 +28,6 @@ vulnerable pins: `mariadb` 3.5.4 (the runtime driver), `mysql2` 3.24.5 and `deep
 ## Last run
 
 - **2026-10-14:** first install. grammY 1.46.0, Prisma 7.10.0 with the overrides: 0 vulnerabilities.
+- **2026-10-28:** `npm audit`: 1 moderate, `fast-uri` 3.1.8 (four URI-handling advisories,
+  GHSA-w74x-v6f9-j3xg and others), under the Prisma CLI's `@prisma/dev` → `ajv`. `npm audit fix`
+  (lockfile only): 0 vulnerabilities. Typecheck and the 18 tests pass.
