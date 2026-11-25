@@ -20,8 +20,9 @@ below with why it stays. Never run `npm audit fix --force`: its "fix" for Prisma
 6.x.
 
 **Overrides** (`package.json` → `overrides`): the same as Rewire and rinaya.org, for Prisma 7.10's
-vulnerable pins: `mariadb` 3.5.4 (the runtime driver), `mysql2` 3.24.5 and `deepmerge-ts` 8.0.2
-(Prisma CLI only). Drop one once Prisma's own pin has caught up, in all three repos.
+vulnerable pins: `mariadb` 3.5.4 (the runtime driver), `mysql2` 3.24.5, `deepmerge-ts` 8.0.2 and
+`effect` 3.22.5 (Prisma CLI only; `effect` since 2026-11-25: Prisma 7.10.0 and 7.10.1 pin 3.20.0,
+open to a ReDoS in `Schema.TemplateLiteral`). Drop one once Prisma's own pin has caught up, in all three repos.
 
 ---
 
@@ -31,3 +32,8 @@ vulnerable pins: `mariadb` 3.5.4 (the runtime driver), `mysql2` 3.24.5 and `deep
 - **2026-10-28:** `npm audit`: 1 moderate, `fast-uri` 3.1.8 (four URI-handling advisories,
   GHSA-w74x-v6f9-j3xg and others), under the Prisma CLI's `@prisma/dev` → `ajv`. `npm audit fix`
   (lockfile only): 0 vulnerabilities. Typecheck and the 18 tests pass.
+- **2026-11-25:** `npm audit`: 3 high, `effect` 3.20.0 (a ReDoS in `Schema.TemplateLiteral`), pinned
+  by the Prisma CLI's `@prisma/config` (npm's only fix was Prisma 6.12). Fixed with the `effect`
+  3.22.5 override, as in rinaya.org, Rinaya Match and Rewire the same day (with their Next.js
+  16.4.6 upgrade). `npm audit`: 0 vulnerabilities. `prisma generate`, the typecheck and the 18 tests
+  pass.
